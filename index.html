@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Askchat.tutoring</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: white;
+}
+
+/* NAV */
+nav {
+    display: flex;
+    justify-content: center;
+    padding: 15px;
+    background: rgba(0,0,0,0.6);
+}
+
+nav a {
+    margin: 0 15px;
+    cursor: pointer;
+    text-decoration: none;
+    color: white;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: #00c6ff;
+}
+
+/* SECTIONS */
+.section {
+    padding: 40px;
+    text-align: center;
+    animation: fadeIn 1s ease;
+}
+
+/* CARD */
+.card {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    margin: 20px auto;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 15px;
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+/* BUTTON */
+button {
+    padding: 10px 18px;
+    border: none;
+    background: #00c6ff;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #0072ff;
+}
+
+/* INPUT */
+input, textarea {
+    width: 90%;
+    padding: 10px;
+    margin: 8px;
+    border-radius: 6px;
+    border: none;
+}
+
+/* CHAT */
+#chatBox {
+    height: 250px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.msg {
+    margin: 6px 0;
+}
+
+.user {
+    color: #00c6ff;
+}
+
+.bot {
+    color: #00ffcc;
+}
+
+/* TYPING */
+.typing {
+    font-style: italic;
+    opacity: 0.7;
+}
+
+/* MOBILE */
+@media (max-width: 600px) {
+    .card {
+        width: 95%;
+    }
+}
+
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+    <a onclick="show('home')">Home</a>
+    <a onclick="show('services')">Services</a>
+    <a onclick="show('chat')">Chat</a>
+    <a onclick="show('contact')">Contact</a>
+</nav>
+
+<!-- HOME -->
+<div id="home" class="section">
+    <h1>Askchat.tutoring</h1>
+    <p>Modern Academic Support Platform</p>
+</div>
+
+<!-- SERVICES -->
+<div id="services" class="section" style="display:none;">
+    <h2>Services</h2>
+
+    <div class="card">
+        <select id="serviceSelect">
+            <option value="">Select Service</option>
+            <option value="tutoring">Tutoring</option>
+            <option value="study">Study Skills</option>
+            <option value="exam">Exam Prep</option>
+        </select>
+
+        <br><br>
+        <button onclick="showService()">Get Info</button>
+
+        <p id="serviceOutput"></p>
+    </div>
+</div>
+
+<!-- CHAT -->
+<div id="chat" class="section" style="display:none;">
+    <h2>AI Tutor Chat</h2>
+
+    <div class="card">
+        <div id="chatBox"></div>
+
+        <input type="text" id="chatInput" placeholder="Ask anything...">
+        <button onclick="send()">Send</button>
+    </div>
+</div>
+
+<!-- CONTACT -->
+<div id="contact" class="section" style="display:none;">
+    <h2>Contact</h2>
+
+    <div class="card">
+        <input type="text" id="name" placeholder="Name">
+        <input type="email" id="email" placeholder="Email">
+        <textarea id="message" placeholder="Message"></textarea>
+
+        <br>
+        <button onclick="submitForm()">Submit</button>
+
+        <p id="formOutput"></p>
+    </div>
+</div>
+
+<script>
+
+let memory = [];
+
+// Navigation
+function show(id) {
+    document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+    document.getElementById(id).style.display = "block";
+}
+
+// Service Info
+function showService() {
+    let val = document.getElementById("serviceSelect").value;
+
+    if (val === "tutoring") {
+        document.getElementById("serviceOutput").innerText =
+        "We guide you step-by-step through topics.";
+    } else if (val === "study") {
+        document.getElementById("serviceOutput").innerText =
+        "We teach effective study techniques.";
+    } else if (val === "exam") {
+        document.getElementById("serviceOutput").innerText =
+        "We help you prepare for exams strategically.";
+    } else {
+        document.getElementById("serviceOutput").innerText =
+        "Please select a service.";
+    }
+}
+
+// Chat System (Advanced)
+function send() {
+    let input = document.getElementById("chatInput");
+    let msg = input.value.trim();
+    if (!msg) return;
+
+    memory.push(msg);
+
+    let chatBox = document.getElementById("chatBox");
+
+    chatBox.innerHTML += `<div class="msg user">You: ${msg}</div>`;
+    chatBox.innerHTML += `<div class="msg bot typing">Tutor is typing...</div>`;
+
+    setTimeout(() => {
+        let response = getResponse(msg, memory);
+
+        document.querySelector(".typing").remove();
+
+        chatBox.innerHTML += `<div class="msg bot">Tutor: ${response}</div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, 1200);
+
+    input.value = "";
+}
+
+// Smarter AI Logic
+function getResponse(input, memory) {
+    input = input.toLowerCase();
+
+    if (input.includes("math")) return "Break the problem into steps and practice regularly.";
+    if (input.includes("study")) return "Use active recall and spaced repetition techniques.";
+    if (input.includes("exam")) return "Focus on time management and past papers.";
+    if (input.includes("help")) return "Tell me what subject you're struggling with.";
+
+    if (memory.length > 5) {
+        return "I see you've asked several questions—keep practicing and you'll improve!";
+    }
+
+    return "I can help with studying, exams, and understanding topics.";
+}
+
+// Contact
+function submitForm() {
+    let name = document.getElementById("name").value;
+
+    if (name) {
+        document.getElementById("formOutput").innerText =
+        `Thank you ${name}, we will contact you soon!`;
+    } else {
+        document.getElementById("formOutput").innerText =
+        "Please enter your name.";
+    }
+}
+
+</script>
+
+</body>
+</html>
